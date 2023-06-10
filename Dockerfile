@@ -3,9 +3,9 @@ FROM prefecthq/prefect:2-python3.9
 COPY requirements.txt .
 RUN pip install -r requirements.txt --trusted-host pypi.python.org --no-cache-dir
 
-ADD flows /opt/prefect/flows
+ADD flows/ /opt/prefect/flows
 
-COPY ./deploy.sh /deploy.sh
-RUN chmod +x /deploy.sh
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT /deploy.sh $0 $@
+ENTRYPOINT /entrypoint.sh $0 $@

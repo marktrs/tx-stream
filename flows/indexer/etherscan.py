@@ -1,12 +1,12 @@
 import requests
 
 from decouple import config
-from prefect import flow
+from prefect import task, get_run_logger
 
 from .event_parser import ResponseParser as parser
 
 
-@flow
+@task
 def get_latest_block_number() -> str:
     url = (
         f'{config("ETHERSCAN_API_URL")}'
@@ -22,8 +22,8 @@ def get_latest_block_number() -> str:
     return parser.parse(r)
 
 
-@flow
-def get_filtered_event_logs(
+@task
+async def get_filtered_event_logs(
     contract_addr: str,
     from_block: str,
     to_block: str,
@@ -31,6 +31,11 @@ def get_filtered_event_logs(
     page: str,
     event_offset: str,
 ) -> str:
+    logger = get_run_logger()
+    logger.info(f"topic: {topic}")
+    logger.info(f"start_block: {from_block}")
+    logger.info(f"to_block: {to_block}")
+
     url = (
         f'{config("ETHERSCAN_API_URL")}'
         "module="

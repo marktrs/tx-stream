@@ -7,21 +7,20 @@ import sys
 initial_block = config("INITIAL_BLOCK") or "1"
 
 
-@flow
+@task
 def log_platform_info():
     logger = get_run_logger()
     logger.info("Host's network name = %s", platform.node())
     logger.info("Python version = %s", platform.python_version())
     logger.info("Platform information (instance type) = %s ", platform.platform())
     logger.info("OS/Arch = %s/%s", sys.platform, platform.machine())
-    logger.info("Prefect Version = %s 🚀", prefect.__version__)
-    logger.info("Initial block = %s", initial_block)
+    logger.info("Prefect Version = %s", prefect.__version__)
 
 
-@flow
-def healthcheck():
+@flow(name="health_check")
+def health_check():
     log_platform_info()
 
 
 if __name__ == "__main__":
-    healthcheck()
+    health_check()

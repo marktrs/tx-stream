@@ -41,7 +41,6 @@ services:
     restart: always
     volumes:
       - "./docker/data/prefect:/root/.prefect"
-      - "./flows:/opt/prefect/flows/"
     entrypoint:
       [
         "/opt/prefect/entrypoint.sh",
@@ -71,6 +70,8 @@ services:
       - PREFECT_API_URL=http://prefect-server:4200/api
       - POSTGREST_URL=http://postgrest-server:3000
     profiles: [ "server" ]
+    volumes:
+      - "./flows:/opt/prefect/flows"
     depends_on:
       - prefect-server
       - postgres-db
