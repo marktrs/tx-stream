@@ -1,0 +1,81 @@
+version: "3.9"
+services:
+  postgres-db:
+    container_name: postgres-db
+    image: postgres:15.2-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_password
+    volumes:
+      - "./docker/data/pgdata:/var/lib/postgresql/data"
+      - "./migrations/init.sql:/docker-entrypoint-initdb.d/init.sql"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app_user -d postgres" ]
+      interval: 5s
+      timeout: 15s
+      retries: 5
+
+    profiles: [ "server" ]
+
+  postgrest-server:
+    container_name: postgrest-server
+    image: postgrest/postgrest
+    ports:
+      - "3000:3000"
+    environment:
+      PGRST_DB_URI: postgres://app_user:app_password@postgres-db:5432/postgres
+      PGRST_DB_SCHEMA: public
+      PGRST_DB_ANON_ROLE: app_user
+      PGRST_OPENAPI_SERVER_PROXY_URI: "http://127.0.0.1:3000"
+    depends_on:
+      - postgres-db
+    profiles: [ "server" ]
+
+  prefect-server:
+    container_name: prefect-server
+    image: prefecthq/prefect:2.10.7-python3.11
+    restart: always
+    volumes:
+      - "./docker/data/prefect:/root/.prefect"
+      - "./flows:/opt/prefect/flows/"
+    entrypoint:
+      [
+        "/opt/prefect/entrypoint.sh",
+        "prefect",
+        "server",
+        "start"
+      ]
+    environment:
+      - PREFECT_UI_URL=http://127.0.0.0:4200/api
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://app_user:app_password@postgres-db:5432/postgres
+    ports:
+      - 4200:4200
+    depends_on:
+      - postgres-db
+    profiles: [ "server" ]
+
+  prefect-agent:
+    container_name: prefect-agent
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - ".env"
+    environment:
+      - PREFECT_API_URL=http://prefect-server:4200/api
+      - POSTGREST_URL=http://postgrest-server:3000
+    profiles: [ "server" ]
+    depends_on:
+      - prefect-server
+      - postgres-db
+      - postgrest-server
+
+networks:
+  default:
+    name: tx-indexer-network

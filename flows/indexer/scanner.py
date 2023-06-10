@@ -1,11 +1,10 @@
-import asyncio
 import time
-import logging
+import asyncio
 
+from prefect import flow, get_run_logger
 from decouple import config
-
-from etherscan import get_latest_block_number, get_filtered_event_logs
-from store import upsert_event_logs, get_max_block_number
+from .store import upsert_event_logs, get_max_block_number
+from .etherscan import get_latest_block_number, get_filtered_event_logs
 
 initial_block = config("INITIAL_BLOCK") or "1"
 block_range = config("BLOCK_RANGE") or "2000"
@@ -17,22 +16,21 @@ pool_addr = config("POOL_CONTRACT")
 api_key = config("ETHERSCAN_API_KEY")
 
 polling_period = config("POLLING_PERIOD") or "1"
-confirmation_period = config("CONFIRMATION_PERIOD") or "60"
-
-logger = logging.getLogger("indexer-scanner")
-logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
+confirmation_blocks = config("CONFIRMATION_BLOCKS") or "10"
 
 
-async def get_start_block():
+@flow
+async def get_start_block() -> int:
     # Get max block number (max(block)) from store
     max_block = await get_max_block_number()
     if max_block is None:
         max_block = int(initial_block)
+
     return max_block
 
 
-async def get_end_block(start_block: int, latest_block: int):
+@flow
+async def get_end_block(start_block: int, latest_block: int) -> int:
     # Get latest block number from Etherscan
     to_block = start_block + int(block_range)
 
@@ -40,14 +38,26 @@ async def get_end_block(start_block: int, latest_block: int):
     if to_block > latest_block:
         to_block = latest_block
 
+    return to_block
 
+
+@flow
 async def scan():
-    logger.info("starting scanner for" + pool_addr + "with event topic" + event_topic)
-
+    logger = get_run_logger()
     # Get latest block number from Etherscan
     start_block = await get_start_block()
+    logger.info(f"start_block: {start_block}")
+
     latest_block = int(get_latest_block_number(), 16)
+    logger.info(f"latest_block: {latest_block}")
+
     end_block = await get_end_block(start_block, latest_block)
+    logger.info(f"end_block: {end_block}")
+
+    # If latest block is in confirmation range, skip and wait for next run
+    if int(latest_block) < int(end_block) + 60:
+        logger.info(f"reach latest block, sleeping for {confirmation_blocks} seconds")
+        return
 
     # With proper block range and offset=1000, we usually get all events in one page
     # TODO: Handle pagination if result exceeds 1000
@@ -68,23 +78,3 @@ async def scan():
 
     # Add batch of filtered event logs to store
     await upsert_event_logs(events)
-
-    logger.info(
-        "start_block: "
-        + str(start_block)
-        + ", latest_block: "
-        + str(latest_block)
-        + ", end_block: "
-        + str(end_block)
-    )
-
-    # If to_block is equal to latest_block, wait for confirmation_period
-    if end_block == latest_block:
-        time.sleep(confirmation_period)
-    else:
-        # Else, wait for polling_period to get the next batch of event logs
-        time.sleep(polling_period)
-
-
-while True:
-    asyncio.run(scan())
