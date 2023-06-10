@@ -10,7 +10,7 @@ async def concurrent_scan(
     max_calls: int,
     latest_block: int,
     start_block: int,
-    confirmation_blocks: int,
+    block_confirmation: int,
     block_range: int,
     pool_addr: str,
     event_topic: str,
@@ -25,14 +25,14 @@ async def concurrent_scan(
     last_scanned_block = start_block + block_range * 5
 
     for _ in range(max_calls):
-        if latest_block <= start_block + confirmation_blocks:
+        if latest_block <= start_block + block_confirmation:
             # reached latest block, stop scanning
             break
 
         end_block = start_block + block_range
 
         if end_block > latest_block:
-            end_block = latest_block - confirmation_blocks
+            end_block = latest_block - block_confirmation
             last_scanned_block = end_block
 
         call = get_filtered_event_logs(

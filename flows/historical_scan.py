@@ -12,8 +12,8 @@ from indexer.utils import hex_to_int
 
 # Shared config between symbol
 
-# TODO: CONFIRMATION_BLOCKS should configurable in Prefect UI parameter
-confirmation_blocks = int(config("CONFIRMATION_BLOCKS")) or 5
+# TODO: BLOCK_CONFIRMATION should configurable in Prefect UI parameter
+block_confirmation = int(config("BLOCK_CONFIRMATION")) or 5
 etherscan_rate_limit = int(config("ETHERSCAN_RATE_LIMIT")) or 5
 
 # Shared config within contract
@@ -76,7 +76,7 @@ async def scan_event_history():
     logger.info(f"latest_block: {latest_block}")
 
     # If latest block is in confirmation range, skip and wait for next run
-    if latest_block <= start_block + confirmation_blocks:
+    if latest_block <= start_block + block_confirmation:
         logger.info(f"reach latest block confirmation period, skipping this run")
         return
 
@@ -90,7 +90,7 @@ async def scan_event_history():
         pool_addr=pool_addr,
         start_block=start_block,
         latest_block=latest_block,
-        confirmation_blocks=confirmation_blocks,
+        block_confirmation=block_confirmation,
         block_range=block_range,
         event_topic=event_topic,
         event_offset=event_offset,
