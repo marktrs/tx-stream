@@ -8,41 +8,43 @@ from indexer.scanner import concurrent_scan
 from indexer.store import get_max_block_number
 from indexer.etherscan import get_latest_block_number
 
-# TODO: INITIAL_BLOCK, should configurable in Prefect UI parameter
-initial_block = config("INITIAL_BLOCK") or "1"
-block_range = config("BLOCK_RANGE") or "2000"
+from indexer.utils import hex_to_int
 
-# TODO: Get event topic from ABI, Topic should be configurable in Prefect UI parameter
-event_topic = config("EVENT_TOPIC")
-event_offset = config("EVENT_OFFSET") or "1000"
-
-# TODO: Get contract from ABI to decode topic, POOL contract should configurable in Prefect UI parameter
-pool_addr = config("POOL_CONTRACT")
-
-# TODO: Configurable in Prefect UI parameter to be able to run on different network/ topic
-api_key = config("ETHERSCAN_API_KEY")
+# Shared config between symbol
 
 # TODO: CONFIRMATION_BLOCKS should configurable in Prefect UI parameter
-confirmation_blocks = config("CONFIRMATION_BLOCKS") or "10"
+confirmation_blocks = int(config("CONFIRMATION_BLOCKS")) or 5
+etherscan_rate_limit = int(config("ETHERSCAN_RATE_LIMIT")) or 5
 
-# TODO: 'API rate limit' should configurable in Prefect UI parameter
-etherscan_rate_limit = config("ETHERSCAN_RATE_LIMIT") or "5"
+# Shared config within contract
+# TODO: Get contract from ABI to decode topic, POOL contract should configurable in Prefect UI parameter
+pool_addr = config("POOL_CONTRACT")
+# TODO: INITIAL_BLOCK should configurable in Prefect UI parameter
+initial_block = int(config("INITIAL_BLOCK")) or 1
+# TODO: block_range should configurable in Prefect UI parameter
+block_range = int(config("BLOCK_RANGE")) or 2000
+
+# Shared config within topic
+# TODO: Get event topic from ABI, Topic should be configurable in Prefect UI parameter
+event_topic = config("EVENT_TOPIC")
+# TODO: EVENT_OFFSET, Topic should be configurable in Prefect UI parameter
+event_offset = config("EVENT_OFFSET") or 1000
 
 
-# TODO: Get start block for a specific topic of an address
+# TODO: Get start block of a specific topic of an address instead max block in st
 @flow
 async def get_start_block() -> int:
     # Get max block number (max(block)) from store
     max_block = await get_max_block_number()
     if max_block is None:
-        max_block = int(initial_block)
+        max_block = initial_block
 
     return max_block
 
 
 async def get_end_block(start_block: int, latest_block: int) -> int:
     # Get latest block number from Etherscan
-    to_block = start_block + int(block_range)
+    to_block = start_block + block_range
 
     # If to_block is greater than latest_block, set to_block to latest_block
     if to_block > latest_block:
@@ -51,8 +53,18 @@ async def get_end_block(start_block: int, latest_block: int) -> int:
     return to_block
 
 
-@flow(name="scan_historical_event", task_runner=SequentialTaskRunner())
-async def scan_historical_event():
+async def get_etherscan_rate_limit_config() -> int:
+    async with get_client() as client:
+        # query the concurrency limit on the 'small_instance' tag
+        limit_config = await client.read_concurrency_limit_by_tag(
+            tag="etherscan_rate_limit"
+        )
+
+    return limit_config.concurrency_limit
+
+
+@flow(name="scan_event_history", task_runner=SequentialTaskRunner())
+async def scan_event_history():
     logger = get_run_logger()
 
     # Get start block from store
@@ -60,20 +72,17 @@ async def scan_historical_event():
     logger.info(f"start_block: {start_block}")
 
     # Get latest block number from Etherscan
-    latest_block = int(get_latest_block_number(), 16)
+    latest_block = hex_to_int(get_latest_block_number())
     logger.info(f"latest_block: {latest_block}")
 
     # If latest block is in confirmation range, skip and wait for next run
-    if int(latest_block) <= int(start_block) + int(confirmation_blocks):
+    if latest_block <= start_block + confirmation_blocks:
         logger.info(f"reach latest block confirmation period, skipping this run")
         return
 
-    async with get_client() as client:
-        # query the concurrency limit on the 'small_instance' tag
-        limit_config = await client.read_concurrency_limit_by_tag(
-            tag="etherscan_rate_limit"
-        )
-        etherscan_rate_limit = limit_config.concurrency_limit
+    rate_limit = await get_etherscan_rate_limit_config()
+    if rate_limit is not None:
+        etherscan_rate_limit = rate_limit
 
     # Otherwise, get event logs from Etherscan
     await concurrent_scan(
@@ -89,4 +98,4 @@ async def scan_historical_event():
 
 
 if __name__ == "__main__":
-    asyncio.run(scan_historical_event())
+    asyncio.run(scan_event_history())

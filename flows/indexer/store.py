@@ -3,7 +3,7 @@ from prefect import flow
 from decouple import config
 from postgrest import AsyncPostgrestClient
 
-from .utils import hex_string_to_int, hex_string_to_address
+from .utils import hex_to_int, hex_to_address
 
 
 @flow
@@ -27,14 +27,14 @@ async def get_max_block_number():
 async def upsert_event_logs(result: list):
     data = [
         {
-            "time": hex_string_to_int(r["timeStamp"]),
-            "tx_from": hex_string_to_address(r["topics"][1]),
-            "tx_to": hex_string_to_address(r["topics"][2]),
-            "gas": hex_string_to_int(r["gasUsed"]),
-            "gas_price": hex_string_to_int(r["gasPrice"]),
-            "block": hex_string_to_int(r["blockNumber"]),
+            "time": hex_to_int(r["timeStamp"]),
+            "tx_from": hex_to_address(r["topics"][1]),
+            "tx_to": hex_to_address(r["topics"][2]),
+            "gas": hex_to_int(r["gasUsed"]),
+            "gas_price": hex_to_int(r["gasPrice"]),
+            "block": hex_to_int(r["blockNumber"]),
             "tx_hash": r["transactionHash"],
-            "contract_to": hex_string_to_address(r["address"]),
+            "contract_to": hex_to_address(r["address"]),
             # "contract_value": "", TODO: Decode event log value
         }
         for r in result
