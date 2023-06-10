@@ -1,7 +1,7 @@
 import asyncio
 
 from decouple import config
-from prefect import flow, get_run_logger
+from prefect import flow, get_run_logger, get_client
 from prefect.task_runners import SequentialTaskRunner
 
 from indexer.scanner import concurrent_scan
@@ -67,6 +67,13 @@ async def scan_historical_event():
     if int(latest_block) <= int(start_block) + int(confirmation_blocks):
         logger.info(f"reach latest block confirmation period, skipping this run")
         return
+
+    async with get_client() as client:
+        # query the concurrency limit on the 'small_instance' tag
+        limit_config = await client.read_concurrency_limit_by_tag(
+            tag="etherscan_rate_limit"
+        )
+        etherscan_rate_limit = limit_config.concurrency_limit
 
     # Otherwise, get event logs from Etherscan
     await concurrent_scan(
