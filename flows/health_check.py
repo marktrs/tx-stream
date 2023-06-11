@@ -1,10 +1,8 @@
 import platform
 import prefect
 from prefect import task, flow, get_run_logger
-from decouple import config
+from prefect import runtime
 import sys
-
-initial_block = config("INITIAL_BLOCK") or "1"
 
 
 @task
@@ -15,10 +13,15 @@ def log_platform_info():
     logger.info("Platform information (instance type) = %s ", platform.platform())
     logger.info("OS/Arch = %s/%s", sys.platform, platform.machine())
     logger.info("Prefect Version = %s", prefect.__version__)
+    logger.info(
+        f"(from task) runtime_deployment_params: {runtime.deployment.parameters.get('config')}"
+    )
 
 
 @flow(name="health_check")
-def health_check():
+def health_check(**config):
+    logger = get_run_logger()
+    logger.info(f"(from flow) runtime_deployment_params: {config}")
     log_platform_info()
 
 
