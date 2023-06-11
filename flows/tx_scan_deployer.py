@@ -1,6 +1,6 @@
 from prefect import flow, task, get_run_logger
 
-from health_check import health_check
+from historical_scan import scan_event_history
 from prefect.deployments import Deployment, run_deployment
 from prefect.server.schemas.schedules import IntervalSchedule
 
@@ -8,7 +8,7 @@ from prefect.server.schemas.schedules import IntervalSchedule
 @flow
 def create_deployment(symbols: str, interval: int):
     return Deployment.build_from_flow(
-        flow=health_check,
+        flow=scan_event_history,
         name=symbols,
         version=1,
         work_pool_name="default-agent-pool",
@@ -24,8 +24,8 @@ def apply_deployment(deployment):
 @flow
 def run_tx_scanner_deployment(symbols: str, config: dict):
     run_deployment(
-        name=f"health_check/{symbols}",
-        flow_run_name="health_check",
+        name=f"scan_event_history/{symbols}",
+        flow_run_name="scan_event_history",
         parameters={
             "config": config,
         },
@@ -40,4 +40,5 @@ def deploy_tx_scanner(symbols: str, **config):
 
 
 if __name__ == "__main__":
+    # default to WETH_USDC when running locally
     deploy_tx_scanner(symbols="WETH_USDC", config={"interval": 10})
