@@ -35,7 +35,7 @@ async def get_filtered_event_logs(
     to_block: int,
     topic: str,
     page: int,
-    event_offset: int,
+    result_offset: int,
 ) -> str:
     logger = get_run_logger()
     logger.info(f"topic: {topic}")
@@ -59,7 +59,7 @@ async def get_filtered_event_logs(
         "&page="
         f"{page}"
         "&offset="
-        f"{event_offset}"
+        f"{result_offset}"
         "&apikey="
         f"{api_key}"
     )

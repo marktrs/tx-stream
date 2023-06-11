@@ -60,6 +60,7 @@ services:
     profiles: [ "server" ]
 
   prefect-agent:
+    restart: always
     container_name: prefect-agent
     image: tx-event-indexer/prefect-agent
     build:

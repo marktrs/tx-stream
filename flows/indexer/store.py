@@ -24,9 +24,10 @@ async def get_max_block_number():
 
 
 @flow
-async def upsert_event_logs(result: list):
+async def upsert_event_logs(symbols: str, result: list):
     data = [
         {
+            "symbols": symbols,
             "time": hex_to_int(r["timeStamp"]),
             "tx_from": hex_to_address(r["topics"][1]),
             "tx_to": hex_to_address(r["topics"][2]),

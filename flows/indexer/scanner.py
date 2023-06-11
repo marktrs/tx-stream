@@ -1,12 +1,13 @@
 import asyncio
 
-from prefect import flow, get_run_logger
+from prefect import flow
 from .store import upsert_event_logs
 from .etherscan import get_filtered_event_logs
 
 
 @flow
 async def concurrent_scan(
+    symbols: str,
     max_calls: int,
     latest_block: int,
     start_block: int,
@@ -14,7 +15,7 @@ async def concurrent_scan(
     block_range: int,
     pool_addr: str,
     event_topic: str,
-    event_offset: int,
+    result_offset: int,
 ):
     # With proper block range and offset=1000, we usually get all events in one page
     # TODO: Handle pagination if result exceeds 1000
@@ -41,7 +42,7 @@ async def concurrent_scan(
             to_block=end_block,
             page=page,
             topic=event_topic,
-            event_offset=event_offset,
+            result_offset=result_offset,
         )
 
         calls.append(call)
@@ -54,9 +55,9 @@ async def concurrent_scan(
 
     events = []
     for result in results:
-        if len(result) > event_offset:
-            get_run_logger().warning(
-                f"found {len(result)} events in block range {start_block} to {last_scanned_block}, offset is {event_offset}"
+        if len(result) > result_offset:
+            raise ValueError(
+                f"Found {len(result)} events in block range {start_block} to {last_scanned_block}, current offset is {result_offset} please increase RESULT_OFFSET and re-run this flow"
             )
         if result is not None:
             events.extend(result)
@@ -65,4 +66,4 @@ async def concurrent_scan(
     # data = decode_event_logs(events)
 
     # Add batch of filtered event logs to store
-    await upsert_event_logs(events)
+    await upsert_event_logs(symbols, events)
