@@ -1,4 +1,4 @@
-from prefect import flow
+from prefect import task
 
 from decouple import config
 from postgrest import AsyncPostgrestClient
@@ -6,8 +6,8 @@ from postgrest import AsyncPostgrestClient
 from .utils import hex_to_int, hex_to_address
 
 
-@flow
-async def get_max_block_number():
+@task
+async def get_max_block_number() -> int:
     async with AsyncPostgrestClient(config("POSTGREST_URL")) as client:
         result = (
             await client.from_("events")
@@ -23,7 +23,7 @@ async def get_max_block_number():
         return result.data[0]["block"]
 
 
-@flow
+@task
 async def upsert_event_logs(symbols: str, result: list):
     data = [
         {

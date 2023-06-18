@@ -1,19 +1,17 @@
-[tool.poetry]
-name = "tx-event-indexer"
-version = "0.1.0"
-description = ""
-authors = ["marktrs <traisak.tra@gmail.com>"]
-readme = "README.md"
+[project]
+name = "tx-indexer"
+version = "0.0.1"
+description = "Index transactions event log from evm compatible blockchains"
+dependencies = [
+"python-decouple >= 3.8, < 4",
+"prefect >= 2.10.13, < 3",
+"postgrest >= 0.10.6 , < 1",
+] 
 
-[tool.poetry.dependencies]
-python = "^3.11"
-postgrest-py = "^0.10.6"
-postgrest = "^0.10.6"
-etherscan-python = "^2.1.0"
-web3 = "^6.4.0"
-python-decouple = "^3.8"
-prefect = "^2.10.12"
+[tool.setuptools]
+py-modules = []
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "flows"
+]

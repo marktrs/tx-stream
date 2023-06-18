@@ -31,17 +31,12 @@ def get_latest_block_number() -> str:
 @task
 async def get_filtered_event_logs(
     contract_addr: str,
+    topic: str,
     from_block: int,
     to_block: int,
-    topic: str,
     page: int,
     result_offset: int,
 ) -> str:
-    logger = get_run_logger()
-    logger.info(f"topic: {topic}")
-    logger.info(f"start_block: {from_block}")
-    logger.info(f"to_block: {to_block}")
-
     url = (
         f"{api_url}"
         "module="

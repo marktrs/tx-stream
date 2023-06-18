@@ -1,5 +1,9 @@
 {
-  "python.testing.pytestArgs": ["tests"],
   "python.testing.unittestEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "python.defaultInterpreterPath": "~/venvs/learn/bin/python",
+  "python.linting.pycodestyleEnabled": true,
+  "python.linting.pycodestyleArgs": ["--max-line-lenght 80"],
+  "editor.rulers": [80],
+  "python.testing.pytestArgs": ["tests"]
 }
