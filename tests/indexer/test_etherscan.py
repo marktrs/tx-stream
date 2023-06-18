@@ -1,10 +1,9 @@
-import unittest
-
+from unittest import TestCase, IsolatedAsyncioTestCase
 from unittest.mock import MagicMock, patch
 from flows.indexer.etherscan import get_latest_block_number, get_filtered_event_logs
 
 
-class TestGetLatestBlockNumber(unittest.TestCase):
+class TestGetLatestBlockNumber(TestCase):
     @patch("flows.indexer.etherscan.requests")
     def test_default(self, mock_requests):
         expected_result = {
@@ -37,9 +36,9 @@ class TestGetLatestBlockNumber(unittest.TestCase):
         )
 
 
-class TestGetFilteredEventLogs(unittest.TestCase):
+class TestGetFilteredEventLogs(IsolatedAsyncioTestCase):
     @patch("flows.indexer.etherscan.requests")
-    def test_default(self, mock_requests):
+    async def test_default(self, mock_requests):
         expected_result = {
             "status": "1",
             "message": "OK",
@@ -66,7 +65,7 @@ class TestGetFilteredEventLogs(unittest.TestCase):
         mock_response = MagicMock()
         mock_response.json.return_value = expected_result
         mock_requests.get.return_value = mock_response
-        result = get_filtered_event_logs.fn(
+        result = await get_filtered_event_logs.fn(
             contract_addr="",
             topic="",
             from_block=1,
@@ -78,7 +77,7 @@ class TestGetFilteredEventLogs(unittest.TestCase):
         self.assertEqual(result, expected_result["result"])
 
     @patch("flows.indexer.etherscan.requests")
-    def test_no_records(self, mock_requests):
+    async def test_no_records(self, mock_requests):
         with self.assertRaises(AssertionError) as cm:
             mock_response = MagicMock()
             expected_result = {
@@ -88,7 +87,7 @@ class TestGetFilteredEventLogs(unittest.TestCase):
             }
             mock_response.json.return_value = expected_result
             mock_requests.get.return_value = mock_response
-            get_filtered_event_logs.fn(
+            await get_filtered_event_logs.fn(
                 contract_addr="",
                 topic="",
                 from_block=1,
