@@ -5,3 +5,5 @@ prefect/
 .env
 docker/data
 .venv/
+tx_indexer.egg-info/
+.coverage

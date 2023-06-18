@@ -5,4 +5,4 @@ stop-server:
 	docker compose --profile server down --rmi local --volumes
 
 test:
-	pytest
+	pytest --cov=flows tests/

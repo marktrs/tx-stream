@@ -1,9 +1,9 @@
-import unittest
+from unittest import TestCase
 from unittest.mock import MagicMock
 from flows.indexer.event_parser import parse
 
 
-class TestEventParser(unittest.TestCase):
+class TestParse(TestCase):
     def test_default(self):
         expected_result = {
             "jsonrpc": "2.0",
