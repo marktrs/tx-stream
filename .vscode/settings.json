@@ -5,5 +5,6 @@
   "python.linting.pycodestyleEnabled": true,
   "python.linting.pycodestyleArgs": ["--max-line-lenght 80"],
   "editor.rulers": [80],
-  "python.testing.pytestArgs": ["tests"]
+  "python.testing.pytestArgs": ["."],
+  "python.testing.unittestArgs": ["-v", "-s", "./tests", "-p", "test_*.py"]
 }

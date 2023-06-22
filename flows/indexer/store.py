@@ -9,8 +9,8 @@ from .utils import hex_to_int, hex_to_address
 @task
 async def get_max_block_number() -> int:
     async with AsyncPostgrestClient(config("POSTGREST_URL")) as client:
-        result = (
-            await client.from_("events")
+        result = await (
+            client.from_("events")
             .select("block")
             .order("block", desc=True)
             .limit(1)
@@ -24,7 +24,7 @@ async def get_max_block_number() -> int:
 
 
 @task
-async def upsert_event_logs(symbols: str, result: list):
+async def upsert_event_logs(symbols: str, events: list):
     data = [
         {
             "symbols": symbols,
@@ -38,9 +38,10 @@ async def upsert_event_logs(symbols: str, result: list):
             "contract_to": hex_to_address(r["address"]),
             # "contract_value": "", TODO: Decode event log value
         }
-        for r in result
+        for r in events
         if r is not None
     ]
+
     async with AsyncPostgrestClient(config("POSTGREST_URL")) as client:
         await client.from_("events").upsert(
             data,

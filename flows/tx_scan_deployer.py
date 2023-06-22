@@ -1,11 +1,12 @@
+import prefect
 import tx_scanner as scanner
 
-from prefect import flow
+from prefect import flow, task
 from prefect.deployments import Deployment, run_deployment
 from prefect.server.schemas.schedules import IntervalSchedule
 
 
-@flow
+@task
 def create_deployment(symbols: str, interval: int):
     return Deployment.build_from_flow(
         flow=scanner.tx_scanner,
@@ -16,12 +17,12 @@ def create_deployment(symbols: str, interval: int):
     )
 
 
-@flow
+@task
 def apply_deployment(deployment):
     deployment.apply()
 
 
-@flow
+@task
 def run_tx_scanner_deployment(
     symbols: str,
     pool_addr: str,

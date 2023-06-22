@@ -55,7 +55,7 @@ async def concurrent_scan(
 
     events = []
     for result in results:
-        if len(result) > result_offset:
+        if len(result) == result_offset:
             raise ValueError(
                 f"Found {len(result)} events in block range {start_block} to {last_scanned_block}, current offset is {result_offset} please increase RESULT_OFFSET and re-run this flow"
             )

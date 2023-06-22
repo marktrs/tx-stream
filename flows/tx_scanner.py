@@ -12,7 +12,7 @@ from indexer.utils import hex_to_int
 
 etherscan_rate_limit = int(config("ETHERSCAN_RATE_LIMIT")) or 5
 
-# TODO: BLOCK_CONFIRMATION should configurable in Prefect UI parameter
+# TODO: BLOCK_CONFIRMATION should configurable in Prefect UI variables
 block_confirmation = int(config("BLOCK_CONFIRMATION")) or 5
 
 
