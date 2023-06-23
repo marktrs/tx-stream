@@ -7,3 +7,4 @@ docker/data
 .venv/
 tx_indexer.egg-info/
 .coverage
+.DS_Store

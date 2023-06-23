@@ -1,0 +1,198 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "contact": {},
+    "title": "EVM Transaction Indexer API",
+    "version": "1.0.0"
+  },
+  "host": "127.0.0.1:3001",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/current_block": {
+      "get": {
+        "produces": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "get current indexed block",
+            "headers": {
+              "Content-Location": { "type": "string" },
+              "Content-Range": { "type": "string" },
+              "Date": { "type": "string" },
+              "Server": { "type": "string" },
+              "Transfer-Encoding": { "type": "string" }
+            },
+            "schema": {
+              "example": [{ "max": 17539093 }],
+              "items": {
+                "properties": {
+                  "max": { "example": 17539093, "type": "number" }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "description": "Get current indexed block",
+        "operationId": "getCurrentIndexedBlock",
+        "summary": "Get current indexed block"
+      }
+    },
+    "/events": {
+      "get": {
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "description": "item per page",
+            "in": "query",
+            "name": "limit",
+            "type": "string"
+          },
+          {
+            "description": "skipped item 0=first page, then offset=limit*page",
+            "in": "query",
+            "name": "offset",
+            "type": "string"
+          },
+          { "in": "query", "name": "order", "type": "string" },
+          { "in": "query", "name": "time", "type": "string" },
+          { "in": "query", "name": "tx_hash", "type": "string" },
+          { "in": "header", "name": "Prefer", "type": "string" }
+        ],
+        "responses": {
+          "200": {
+            "description": "get events by tx hash within time range",
+            "headers": {
+              "Content-Location": { "type": "string" },
+              "Content-Range": { "type": "string" },
+              "Date": { "type": "string" },
+              "Server": { "type": "string" },
+              "Transfer-Encoding": { "type": "string" }
+            },
+            "schema": {
+              "example": [
+                {
+                  "block": 17532055,
+                  "contract_to": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+                  "gas": 123561,
+                  "gas_price": 81774747180,
+                  "symbols": "WETH_USDC",
+                  "time": 1687399187,
+                  "total_fee": null,
+                  "tx_from": "0x9507c04b10486547584c37bcbd931b2a4fee9a41",
+                  "tx_hash": "0x5aee9b24acb0b7ae1d87bee2be24dfd9d0533d388f879e9f5683e5ba48ce1d30",
+                  "tx_to": "0x9507c04b10486547584c37bcbd931b2a4fee9a41",
+                  "value": null
+                }
+              ],
+              "items": {
+                "properties": {
+                  "block": { "example": 17532055, "type": "number" },
+                  "contract_to": {
+                    "example": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+                    "type": "string"
+                  },
+                  "gas": { "example": 123561, "type": "number" },
+                  "gas_price": { "example": 81774747180, "type": "number" },
+                  "symbols": { "example": "WETH_USDC", "type": "string" },
+                  "time": { "example": 1687399187, "type": "number" },
+                  "total_fee": { "example": null, "x-nullable": true },
+                  "tx_from": {
+                    "example": "0x9507c04b10486547584c37bcbd931b2a4fee9a41",
+                    "type": "string"
+                  },
+                  "tx_hash": {
+                    "example": "0x5aee9b24acb0b7ae1d87bee2be24dfd9d0533d388f879e9f5683e5ba48ce1d30",
+                    "type": "string"
+                  },
+                  "tx_to": {
+                    "example": "0x9507c04b10486547584c37bcbd931b2a4fee9a41",
+                    "type": "string"
+                  },
+                  "value": { "example": null, "x-nullable": true }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "206": {
+            "description": "get event by time range",
+            "headers": {
+              "Content-Location": { "type": "string" },
+              "Content-Range": { "type": "string" },
+              "Date": { "type": "string" },
+              "Server": { "type": "string" },
+              "Transfer-Encoding": { "type": "string" }
+            },
+            "schema": {
+              "example": [
+                {
+                  "block": 17465240,
+                  "contract_to": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+                  "gas": 178587,
+                  "gas_price": 17593591580,
+                  "symbols": "WETH_USDC",
+                  "time": 1686588347,
+                  "total_fee": null,
+                  "tx_from": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+                  "tx_hash": "0xb1cec08ef900fd774c755059185f44028ae2f5feaaaf3d8a9f125efe211143a9",
+                  "tx_to": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+                  "value": null
+                },
+                {
+                  "block": 17465227,
+                  "contract_to": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+                  "gas": 653284,
+                  "gas_price": 19607209391,
+                  "symbols": "WETH_USDC",
+                  "time": 1686588167,
+                  "total_fee": null,
+                  "tx_from": "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45",
+                  "tx_hash": "0x672fc3d7112fa8790d51c864a944fb3d4f79a0dde6ede6811c49f9a4e282bad7",
+                  "tx_to": "0x68b3465833fb72a70ecdf485e0e4c7bd8665fc45",
+                  "value": null
+                }
+              ],
+              "items": {
+                "properties": {
+                  "block": { "example": 17465240, "type": "number" },
+                  "contract_to": {
+                    "example": "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
+                    "type": "string"
+                  },
+                  "gas": { "example": 178587, "type": "number" },
+                  "gas_price": { "example": 17593591580, "type": "number" },
+                  "symbols": { "example": "WETH_USDC", "type": "string" },
+                  "time": { "example": 1686588347, "type": "number" },
+                  "total_fee": { "example": null, "x-nullable": true },
+                  "tx_from": {
+                    "example": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+                    "type": "string"
+                  },
+                  "tx_hash": {
+                    "example": "0xb1cec08ef900fd774c755059185f44028ae2f5feaaaf3d8a9f125efe211143a9",
+                    "type": "string"
+                  },
+                  "tx_to": {
+                    "example": "0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad",
+                    "type": "string"
+                  },
+                  "value": { "example": null, "x-nullable": true }
+                },
+                "type": "object"
+              },
+              "type": "array"
+            }
+          }
+        },
+        "description": "Get list of events with pagination",
+        "operationId": "getListOfEventsWithPagination",
+        "summary": "Get list of events with pagination"
+      }
+    }
+  },
+  "tags": []
+}

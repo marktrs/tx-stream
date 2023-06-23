@@ -1,5 +1,5 @@
 [project]
-name = "tx-indexer"
+name = "EVM Transaction Indexer"
 version = "0.0.1"
 description = "Index transactions event log from evm compatible blockchains"
 dependencies = [

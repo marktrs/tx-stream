@@ -24,6 +24,7 @@ services:
     profiles: [ "server" ]
     container_name: postgrest-server
     image: postgrest/postgrest
+    restart: always
     ports:
       - "3001:3001"
     environment:
@@ -61,9 +62,9 @@ services:
 
   prefect-agent:
     profiles: [ "server" ]
-    restart: always
     container_name: prefect-agent
     image: tx-event-indexer/prefect-agent
+    restart: always
     build:
       context: .
       dockerfile: Dockerfile
