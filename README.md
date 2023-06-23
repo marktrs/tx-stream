@@ -36,7 +36,7 @@ For the full API document [please check out this section](https://github.com/mar
 To start using this application locally, you need to clone this repository along with [the submodule repository](https://github.com/marktrs/txfee-history-client) where the web client application is located.
 
 ```
-git clone --recurse-submodules https://github.com/marktrs/txfee-history-client.git
+git clone --recurse-submodules git@github.com:marktrs/tx-stream.git
 ```
 
 This project is using Git submodule to allow managing dependencies in a larger Git repository, referencing other repositories as subdirectories while maintaining separate version control and revision history for each.
