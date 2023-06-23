@@ -21,6 +21,7 @@ The purpose of the project is to create a robust API server and Interactive Web 
 It supports real-time data recording and historical batch data recording, allowing continuous capture of live data and retrieval of past transactions. The system provides extensive RESTful APIs that support horizontal/vertical filters, pagination, ordering, and composite queries.
 
 Additionally, It provides a client application that allows users to query transactions by ID/hash and time range, displaying a paginated list of transactions with customizable pagination options.
+![Client Application](https://github.com/marktrs/tx-stream/blob/main/apidoc/assets/dashboard.png?raw=true)
 
 ## Notes
 
@@ -54,7 +55,7 @@ To build from source without docker:
 
 ## Usage
 
-Using docker compose
+Using `docker compose`
 
 1. Create .env file from .env.example and fill in the environment variables such as ETHERSCAN_API_KEY
 
@@ -115,6 +116,8 @@ This project is designed for scalability and extensibility. It allows you to add
 In terms of reliability and availability, the system is designed to be highly available and scalable. It uses a distributed task execution where workflows in Prefect are standalone objects that can be run at any time. Fault-tolerant scheduling is a crucial feature in Prefect that ensures the reliability and availability of data pipelines, especially in production environments.
 
 For more detail, The following section will explain the use case of 3 main components: API server, Dataflow automation, and client application and documentation of the API server.
+
+![Flow Run](https://github.com/marktrs/tx-stream/blob/main/apidoc/assets/flow-run.png?raw=true)
 
 ### API Server - PostgREST
 
@@ -196,7 +199,7 @@ You can create a new flow run with a parameter to index a new event topic on dif
 - Navigate to (http://localhost:4200/flows)[http://localhost:4200/flows] and locate to `deploy_symbol_scanner` flow
 - Click on `:` > `Quick run` button and fill in the parameter > Click `Run` button
 - The new deployment will be add to queue. You can monitor the flow run status on the `Flow Runs` tab
-- See available deployment configurations ![Flow deployment configuration](https://github.com/marktrs/tx-stream/tree/main/apidoc/assets/deployment.png)
+- See available deployment configurations ![Flow deployment configuration](https://github.com/marktrs/tx-stream/blob/main/apidoc/assets/deployment.png?raw=true)
 
 2. Using Prefect CLI
 
@@ -228,7 +231,7 @@ $ prefect deployment run tx_scan_deployer/deploy-symbol-scanner
 - Navigate to (http://localhost:4200/concurrency-limits)[http://localhost:4200/concurrency-limits] and locate to `Task Run Concurrency Limits` concurrency limit
 - Click on `+` > fill in the parameter > Click `Add` button
 - The new concurrency limit will be set. New task run will use this value as limit
-- See available concurrency limit configurations ![Concurrency limit configuration](https://github.com/marktrs/tx-stream/tree/main/apidoc/assets/concurrency-limit.png)
+- See available concurrency limit configurations ![Concurrency limit configuration](https://github.com/marktrs/tx-stream/blob/main/apidoc/assets/concurrency-limit.png?raw=true)
 
 2. Using Prefect CLI
 
